@@ -5,12 +5,12 @@ local -a remotes
 if (( ${*[(I)(-r|--remotes)]} )); then
   remotes=(${^*:#-*})
 else
-  remotes=(${(f)"$(command git rev-parse --abbrev-ref ${^*:#-*}@{u} 2>/dev/null)"}) || remotes=()
+  remotes=(${(f)"$(command yadm rev-parse --abbrev-ref ${^*:#-*}@{u} 2>/dev/null)"}) || remotes=()
 fi
-if command git branch --delete ${@} && \
+if command yadm branch --delete ${@} && \
     (( ${#remotes} )) && \
     read -q "?Also delete remote branch(es) ${remotes} [y/N]? "; then
   print
   local remote
-  for remote (${remotes}) command git push ${remote%%/*} :${remote#*/}
+  for remote (${remotes}) command yadm push ${remote%%/*} :${remote#*/}
 fi

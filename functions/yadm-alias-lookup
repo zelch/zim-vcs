@@ -5,18 +5,18 @@ if (( # < 1 )); then
   print -u2 "usage: ${0} <path to yadm module> [pattern...]"
   return 2
 fi
-local gprefix
-zstyle -s ':zim:yadm' aliases-prefix 'gprefix' || gprefix=G
+local yprefix
+zstyle -s ':zim:yadm' aliases-prefix 'yprefix' || yprefix=Y
 
-local gline galias
-local -r gmodule_home=${1}
+local yline yalias
+local -r ymodule_home=${1}
 shift
-local -r gpattern=${(j:.*:)@}
+local -r ypattern=${(j:.*:)@}
 # read one-line documentations from README.md
-while IFS= read -r gline; do
-  if [[ ${gline} =~ '^ *\* `G([^`]*)` (.*)$' ]]; then
-    galias=${gprefix}${match[1]}
-    gline=${galias}$'\t'${aliases[${galias}]}$'\t'${match[2]}
-    if [[ -z ${gpattern} || ${gline} =~ ${gpattern} ]] print -R ${gline}
+while IFS= read -r yline; do
+  if [[ ${yline} =~ '^ *\* `Y([^`]*)` (.*)$' ]]; then
+    yalias=${yprefix}${match[1]}
+    yline=${yalias}$'\t'${aliases[${yalias}]}$'\t'${match[2]}
+    if [[ -z ${ypattern} || ${yline} =~ ${ypattern} ]] print -R ${yline}
   fi
-done < ${gmodule_home}/README.md | command column -s $'\t' -t
+done < ${ymodule_home}/README.md | command column -s $'\t' -t

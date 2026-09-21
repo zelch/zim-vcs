@@ -112,6 +112,7 @@ it's `Yb`.
 
   * `ia` adds file contents to the index.
   * `iA` adds file contents to the index interactively.
+  * `ie` opens an editor to manually choose hunks to add to the index.
   * `iu` adds file contents to the index (updates all tracked files).
   * `iU` adds file contents to the index (updates all files).
   * `id` displays changes between the index and a named commit (diff).

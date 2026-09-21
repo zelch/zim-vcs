@@ -117,6 +117,7 @@ alias ${vprefix}hw="${vcmd} help --web"
 # Index (i)
 alias ${vprefix}ia="${vcmd} add --verbose"
 alias ${vprefix}iA="${vcmd} add --patch"
+alias ${vprefix}ie="${vcmd} add --edit"
 alias ${vprefix}iu="${vcmd} add --verbose --update"
 alias ${vprefix}iU="${vcmd} add --verbose --all"
 alias ${vprefix}id="${vcmd} diff --no-ext-diff --cached"

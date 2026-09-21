@@ -1,0 +1,156 @@
+#!/usr/bin/env zsh
+# Test suite for the zim-vcs module.
+#
+# Run with: zsh tests/run
+# (or ./tests/run, if it's executable)
+builtin emulate -L zsh
+setopt PIPE_FAIL
+
+local -r vtests_dir=${0:A:h}
+local -r vmodule_home=${vtests_dir:h}
+
+local -i vpass=0 vfail=0
+local vscratch
+
+vscratch=$(command mktemp -d) || exit 1
+trap "command rm -rf ${(q)vscratch}" EXIT
+
+assert_eq() {
+  local -r vdesc=$1 vexpected=$2 vactual=$3
+  if [[ ${vexpected} == ${vactual} ]]; then
+    (( vpass++ ))
+  else
+    (( vfail++ ))
+    print -u2 "FAIL: ${vdesc}"
+    print -u2 "  expected: ${vexpected}"
+    print -u2 "  actual:   ${vactual}"
+  fi
+}
+
+assert_true() {
+  local -r vdesc=$1 vcond=$2
+  if (( vcond )); then
+    (( vpass++ ))
+  else
+    (( vfail++ ))
+    print -u2 "FAIL: ${vdesc}"
+  fi
+}
+
+#
+# Syntax check every function and init.zsh
+#
+
+test_syntax() {
+  local vfile
+  for vfile (${vmodule_home}/functions/*(N) ${vmodule_home}/init.zsh) {
+    assert_true "zsh -n ${vfile:t}" $(( $(command zsh -n ${vfile} 2>&1; print ${?}) == 0 ))
+  }
+}
+
+#
+# Two instances (a default-named one and one named 'yadm') can coexist, each
+# baking in its own command.
+#
+
+test_dual_instance() {
+  local -r vgit_home=${vscratch}/instances/zim-vcs vyadm_home=${vscratch}/instances/yadm
+  command mkdir -p ${vgit_home} ${vyadm_home}
+  command cp -r ${vmodule_home}/functions ${vmodule_home}/init.zsh ${vmodule_home}/README.md ${vgit_home}/
+  command cp -r ${vmodule_home}/functions ${vmodule_home}/init.zsh ${vmodule_home}/README.md ${vyadm_home}/
+
+  () {
+    builtin emulate -L zsh
+    autoload -Uz ${vgit_home}/functions/*(:t) ${vyadm_home}/functions/*(:t)
+    fpath=(${vgit_home}/functions ${vyadm_home}/functions ${fpath})
+
+    # the 'git' instance gets no configuration: it must default to git/G
+    source ${vgit_home}/init.zsh
+
+    # the 'yadm' instance must be told to use yadm explicitly
+    zstyle ':zim:vcs:yadm' cmd 'yadm'
+    source ${vyadm_home}/init.zsh
+
+    assert_eq 'default instance runs git' 'git branch' "${aliases[Gb]}"
+    assert_eq 'default instance prefix is G' 'git' "${aliases[G]}"
+    assert_eq 'configured yadm instance runs yadm' 'yadm branch' "${aliases[Yb]}"
+    assert_eq 'configured yadm instance prefix is Y' 'yadm' "${aliases[Y]}"
+    assert_eq '.. bakes in git for the default instance' \
+      'cd "$(vcs-root git || print .)"' "${aliases[G..]}"
+    assert_eq '.. bakes in yadm for the yadm instance' \
+      'cd "$(vcs-root yadm || print .)"' "${aliases[Y..]}"
+
+    local -i vgcount vycount
+    vgcount=${#${(M)${(k)aliases}:#G*}}
+    vycount=${#${(M)${(k)aliases}:#Y*}}
+    assert_true 'both instances defined the same number of aliases' $(( vgcount == vycount && vgcount > 0 ))
+  }
+}
+
+#
+# The alias lookup ('G?'/'Y?') groups results under README section headers,
+# and only prints headers applicable to what actually matched.
+#
+
+test_alias_lookup_grouping() {
+  () {
+    builtin emulate -L zsh
+    autoload -Uz ${vmodule_home}/functions/*(:t)
+    fpath=(${vmodule_home}/functions ${fpath})
+
+    local vout
+    vout=$(vcs-alias-lookup ${vmodule_home} G log)
+    assert_true "'G? log' includes the Log: section" $(( ${vout[(I)Log:]} > 0 ))
+    assert_true "'G? log' includes the Commit: section" $(( ${vout[(I)Commit:]} > 0 ))
+    assert_true "'G? log' excludes the Branch: section" $(( ${vout[(I)Branch:]} == 0 ))
+    assert_true "'G? log' excludes the Merge: section" $(( ${vout[(I)Merge:]} == 0 ))
+
+    vout=$(vcs-alias-lookup ${vmodule_home} G sign)
+    local vsection
+    for vsection (Commit Log Merge Rebase Tag) {
+      assert_true "'G? sign' includes the ${vsection}: section" $(( ${vout[(I)${vsection}:]} > 0 ))
+    }
+    assert_true "'G? sign' excludes the Branch: section" $(( ${vout[(I)Branch:]} == 0 ))
+
+    vout=$(vcs-alias-lookup ${vmodule_home} G)
+    assert_true "full listing includes the Command: section" $(( ${vout[(I)Command:]} > 0 ))
+    assert_true "full listing includes the Working trees: section" $(( ${vout[(I)Working trees:]} > 0 ))
+    assert_true "full listing does not leak Functions section docs" $(( ${vout[(I)vcs-alias-lookup <module*]} == 0 ))
+  }
+}
+
+#
+# vcs-root, vcs-dir and vcs-ignore-add work against a real git repository.
+#
+
+test_repo_functions() {
+  local -r vrepo=${vscratch}/repo
+  command mkdir -p ${vrepo}
+  ( builtin cd ${vrepo} && command git init -q )
+
+  () {
+    builtin emulate -L zsh
+    autoload -Uz ${vmodule_home}/functions/*(:t)
+    fpath=(${vmodule_home}/functions ${fpath})
+    builtin cd ${vrepo}
+
+    assert_eq 'vcs-root finds the working tree root' "${vrepo:A}" "$(vcs-root git)"
+    assert_eq 'vcs-dir finds the .git directory' "${vrepo:A}/.git" "$(vcs-dir git)"
+
+    vcs-ignore-add git .gitignore foo bar
+    assert_eq 'vcs-ignore-add writes to .gitignore' $'foo\nbar' "$(<.gitignore)"
+  }
+}
+
+#
+# Run everything
+#
+
+test_syntax
+test_dual_instance
+test_alias_lookup_grouping
+test_repo_functions
+
+print
+print "${vpass} passed, ${vfail} failed"
+(( vfail == 0 ))

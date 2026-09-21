@@ -1,0 +1,13 @@
+# vim:et sts=2 sw=2 ft=zsh
+builtin emulate -L zsh
+
+local vcs_cmd=${1:?}
+shift
+
+local -a vrefs vsplits
+local vref
+vrefs=(${(f)"$(command ${vcs_cmd} branch --format '%(refname:short) %(upstream:track,nobracket)')"}) || return 1
+for vref in ${vrefs}; do
+  vsplits=(${(s: :)vref})
+  if [[ ${vsplits[2]} == ${1} && ${vsplits[4]} == ${2} ]] print -R ${vsplits[1]}
+done

@@ -1,0 +1,28 @@
+# vim:et sts=2 sw=2 ft=zsh
+builtin emulate -L zsh
+
+local vcs_cmd=${1:?}
+shift
+
+local vcs_root vcs_dir
+vcs_root=$(vcs-root ${vcs_cmd}) || return 1
+vcs_dir=$(vcs-dir ${vcs_cmd}) || return 1
+
+if (( # != 1 )); then
+  print -u2 "usage: ${0} <cmd> <path>"
+  return 2
+fi
+
+local -r src=${1}
+if ! command ${vcs_cmd} -C ${vcs_root} config --file .gitmodules --get submodule.${src}.path &>/dev/null; then
+  print -u2 "${0}: submodule not found: ${src}"
+  return 1
+fi
+
+command ${vcs_cmd} -C ${vcs_root} config --file ${vcs_dir}/config --remove-section submodule.${src} &>/dev/null
+command ${vcs_cmd} -C ${vcs_root} config --file .gitmodules --remove-section submodule.${src} &>/dev/null
+command ${vcs_cmd} -C ${vcs_root} add .gitmodules
+command ${vcs_cmd} -C ${vcs_root} rm --cached ${src} &>/dev/null
+command rm -rf ${vcs_root}/${src}
+command rm -rf ${vcs_dir}/modules/${src}
+return 0

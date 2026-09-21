@@ -1,16 +1,19 @@
 # vim:et sts=2 sw=2 ft=zsh
 builtin emulate -L zsh
 
+local vcs_cmd=${1:?}
+shift
+
 local -a remotes
 if (( ${*[(I)(-r|--remotes)]} )); then
   remotes=(${^*:#-*})
 else
-  remotes=(${(f)"$(command yadm rev-parse --abbrev-ref ${^*:#-*}@{u} 2>/dev/null)"}) || remotes=()
+  remotes=(${(f)"$(command ${vcs_cmd} rev-parse --abbrev-ref ${^*:#-*}@{u} 2>/dev/null)"}) || remotes=()
 fi
-if command yadm branch --delete ${@} && \
+if command ${vcs_cmd} branch --delete ${@} && \
     (( ${#remotes} )) && \
     read -q "?Also delete remote branch(es) ${remotes} [y/N]? "; then
   print
   local remote
-  for remote (${remotes}) command yadm push ${remote%%/*} :${remote#*/}
+  for remote (${remotes}) command ${vcs_cmd} push ${remote%%/*} :${remote#*/}
 fi

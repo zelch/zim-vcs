@@ -1,11 +1,13 @@
-yadm
+vcs
 ===
 
-Provides handy YADM aliases and functions.
+Provides handy Git-family aliases and functions for [zimfw](https://zimfw.org),
+for any git-compatible command such as `git` itself or [yadm](https://yadm.io).
 
-This is a direct fork of [zimfw/git](https://yadmhub.com/zimfw/git), with git replaced with yadm.
-
-They should coexist nicely.
+This is a fork of [zimfw/git](https://github.com/zimfw/git), generalized so
+the underlying command and alias prefix are both configurable. Load the
+module more than once to get aliases for more than one command at the same
+time (e.g. both `git` and `yadm`). See Settings below.
 
 Many thanks to [Sorin Ionescu](https://github.com/sorin-ionescu) for the
 excellent original aliases.
@@ -13,264 +15,292 @@ excellent original aliases.
 Aliases
 -------
 
-### Yadm
+Below, `` `‹suffix›` `` bullets describe the alias `<prefix><suffix>`, where
+`<prefix>` is the configured alias prefix (see Settings). E.g. with the
+default prefix for `git`, `` `b` `` below is the alias `Gb`; for `yadm`,
+it's `Yb`.
 
-  * `Y` is short for `yadm`.
+### Command
+
+  * `` is short for the configured command.
 
 ### Branch
 
-  * `Yb` lists, creates, renames, and deletes branches.
-  * `Ybc` creates a new branch.
-  * `Ybd` detaches *HEAD* at the tip of the current or given branch.
-  * `Ybl` lists branches and their commits.
-  * `YbL` lists local and remote branches and their commits.
-  * `Ybn` lists branches that do not contain a given commit.
-  * `Ybm` renames a branch.
-  * `YbM` renames a branch even if the new branch name already exists.
-  * `YbR` resets a branch even if the branch name already exists.
-  * `Ybs` lists branches and their commits with ancestry graphs.
-  * `YbS` lists local and remote branches and their commits with ancestry graphs.
-  * `Ybu` unsets the remote-tracking information for the current or given branch.
-  * `YbG` deletes all local branches tracking remote branches that are gone.
-  * `Ybx` deletes a branch.
-  * `YbX` deletes a branch irrespective of its merged status.
+  * `b` lists, creates, renames, and deletes branches.
+  * `bc` creates a new branch.
+  * `bd` detaches *HEAD* at the tip of the current or given branch.
+  * `bl` lists branches and their commits.
+  * `bL` lists local and remote branches and their commits.
+  * `bn` lists branches that do not contain a given commit.
+  * `bm` renames a branch.
+  * `bM` renames a branch even if the new branch name already exists.
+  * `bR` resets a branch even if the branch name already exists.
+  * `bs` lists branches and their commits with ancestry graphs.
+  * `bS` lists local and remote branches and their commits with ancestry graphs.
+  * `bu` unsets the remote-tracking information for the current or given branch.
+  * `bG` deletes all local branches tracking remote branches that are gone.
+  * `bx` deletes a branch.
+  * `bX` deletes a branch irrespective of its merged status.
 
 ### Commit
 
-  * `Yc` records changes to the repository.
-  * `Yca` commits all modified and deleted files.
-  * `YcA` commits all modified and deleted files interactively.
-  * `Ycm` commits with a given message.
-  * `Yco` checks out a branch or paths to the working tree.
-  * `YcO` checks out hunks from the index or the tree interactively.
-  * `Ycf` amends the tip of the current branch reusing the same log message as *HEAD*.
-  * `YcF` amends the tip of the current branch.
-  * `Ycp` applies changes introduced by existing commits.
-  * `YcP` applies changes introduced by existing commits without committing.
-  * `Ycr` reverts existing commits by reverting patches and recording new commits.
-  * `YcR` removes the *HEAD* commit.
-  * `Ycs` shows one or more objects (blobs, trees, tags and commits).
-  * `YcS` commits with YPG signature.
-  * `Ycu` commits with fixup message using given commit.
-  * `YcU` commits with squash message using given commit.
-  * `Ycv` verifies the YPG signature of commits.
+  * `c` records changes to the repository.
+  * `ca` commits all modified and deleted files.
+  * `cA` commits all modified and deleted files interactively.
+  * `cm` commits with a given message.
+  * `co` checks out a branch or paths to the working tree.
+  * `cO` checks out hunks from the index or the tree interactively.
+  * `cf` amends the tip of the current branch reusing the same log message as *HEAD*.
+  * `cF` amends the tip of the current branch.
+  * `cp` applies changes introduced by existing commits.
+  * `cP` applies changes introduced by existing commits without committing.
+  * `cr` reverts existing commits by reverting patches and recording new commits.
+  * `cR` removes the *HEAD* commit.
+  * `cs` shows one or more objects (blobs, trees, tags and commits).
+  * `cS` commits with a GPG signature.
+  * `cu` commits with fixup message using given commit.
+  * `cU` commits with squash message using given commit.
+  * `cv` verifies the GPG signature of commits.
 
 ### Conflict
 
-  * `YCl` lists unmerged files.
-  * `YCa` adds unmerged file contents to the index.
-  * `YCe` executes merge-tool on all unmerged files.
-  * `YCo` checks out our changes for unmerged paths.
-  * `YCO` checks out our changes for all unmerged paths.
-  * `YCt` checks out their changes for unmerged paths.
-  * `YCT` checks out their changes for all unmerged paths.
+  * `Cl` lists unmerged files.
+  * `Ca` adds unmerged file contents to the index.
+  * `Ce` executes merge-tool on all unmerged files.
+  * `Co` checks out our changes for unmerged paths.
+  * `CO` checks out our changes for all unmerged paths.
+  * `Ct` checks out their changes for unmerged paths.
+  * `CT` checks out their changes for all unmerged paths.
 
 ### Data
 
-  * `Yd` displays information about files in the index and the working tree.
-  * `Ydc` lists cached files.
-  * `Ydx` lists deleted files.
-  * `Ydm` lists modified files.
-  * `Ydu` lists untracked files.
-  * `Ydk` lists killed files.
-  * `Ydi` lists ignored files.
-  * `YdI` lists commited files that would be ignored.
+  * `d` displays information about files in the index and the working tree.
+  * `dc` lists cached files.
+  * `dx` lists deleted files.
+  * `dm` lists modified files.
+  * `du` lists untracked files.
+  * `dk` lists killed files.
+  * `di` lists ignored files.
+  * `dI` lists commited files that would be ignored.
 
 ### Fetch
 
-  * `Yf` downloads objects and references from another repository.
-  * `Yfa` downloads objects and references from all remotes.
-  * `Yfp` prunes stale remote-tracking branches and fetches all remotes.
-  * `Yfc` clones a repository into a new directory.
-  * `Yfm` fetches from and merges with another repository or local branch.
-  * `Yfr` fetches from and rebases on top of another repository or local branch.
-  * `Yfu` prunes stale remote-tracking branches, fetches all remotes and merges.
+  * `f` downloads objects and references from another repository.
+  * `fa` downloads objects and references from all remotes.
+  * `fp` prunes stale remote-tracking branches and fetches all remotes.
+  * `fc` clones a repository into a new directory.
+  * `fm` fetches from and merges with another repository or local branch.
+  * `fr` fetches from and rebases on top of another repository or local branch.
+  * `fu` prunes stale remote-tracking branches, fetches all remotes and merges.
 
-### Yrep
+### Grep
 
-  * `Yg` displays lines matching a pattern.
-  * `Ygi` displays lines matching a pattern ignoring case.
-  * `Ygl` lists files matching a pattern.
-  * `YgL` lists files that are not matching a pattern.
-  * `Ygv` displays lines not matching a pattern.
-  * `Ygw` displays lines matching a pattern at word boundary.
+  * `g` displays lines matching a pattern.
+  * `gi` displays lines matching a pattern ignoring case.
+  * `gl` lists files matching a pattern.
+  * `gL` lists files that are not matching a pattern.
+  * `gv` displays lines not matching a pattern.
+  * `gw` displays lines matching a pattern at word boundary.
 
 ### Help
 
-  * `Yh` displays help information about Yit.
-  * `Yhw` displays manual page for the command in the web browser.
+  * `h` displays help information about the configured command.
+  * `hw` displays manual page for the command in the web browser.
 
 ### Index
 
-  * `Yia` adds file contents to the index.
-  * `YiA` adds file contents to the index interactively.
-  * `Yiu` adds file contents to the index (updates all tracked files).
-  * `YiU` adds file contents to the index (updates all files).
-  * `Yid` displays changes between the index and a named commit (diff).
-  * `YiD` displays changes between the index and a named commit (word diff).
-  * `Yir` resets the current *HEAD* to the specified state.
-  * `YiR` resets the current index interactively.
-  * `Yix` removes files from the index (recursively).
-  * `YiX` removes files from the index (recursively and forced).
+  * `ia` adds file contents to the index.
+  * `iA` adds file contents to the index interactively.
+  * `iu` adds file contents to the index (updates all tracked files).
+  * `iU` adds file contents to the index (updates all files).
+  * `id` displays changes between the index and a named commit (diff).
+  * `iD` displays changes between the index and a named commit (word diff).
+  * `ir` resets the current *HEAD* to the specified state.
+  * `iR` resets the current index interactively.
+  * `ix` removes files from the index (recursively).
+  * `iX` removes files from the index (recursively and forced).
 
 ### Log
 
-  * `Yl` displays the log.
-  * `Yls` displays the stats log.
-  * `Yld` displays the diff log.
-  * `Ylf` displays the diff log of a given file, continuing beyond renames.
-  * `Ylo` displays the one line log.
-  * `YlO` displays the one line log with authors and dates.
-  * `Ylg` displays the graph log.
-  * `YlG` displays the graph log with authors and dates.
-  * `Ylv` displays the log, verifying the YPG signature of commits.
-  * `Ylc` displays the commit count for each contributor in descending order.
-  * `Ylr` manages reflog information.
+  * `l` displays the log.
+  * `ls` displays the stats log.
+  * `ld` displays the diff log.
+  * `lf` displays the diff log of a given file, continuing beyond renames.
+  * `lo` displays the one line log.
+  * `lO` displays the one line log with authors and dates.
+  * `lg` displays the graph log.
+  * `lG` displays the graph log with authors and dates.
+  * `lv` displays the log, verifying the GPG signature of commits.
+  * `lc` displays the commit count for each contributor in descending order.
+  * `lr` manages reflog information.
 
 ### Merge
 
-  * `Ym` joins two or more development histories together.
-  * `Yma` aborts the conflict resolution, and reconstructs the pre-merge state.
-  * `Ymc` continues the merge after conflicts are resolved.
-  * `YmC` performs a merge but does not commit.
-  * `YmF` creates a merge commit even if the merge could be resolved as a fast-forward.
-  * `Yms` performs a squash merge but does not commit.
-  * `YmS` performs a merge and YPG-signs the resulting commit.
-  * `Ymv` verifies the YPG signature of the tip commit of the side branch being merged.
-  * `Ymt` runs the merge conflict resolution tools to resolve conflicts.
+  * `m` joins two or more development histories together.
+  * `ma` aborts the conflict resolution, and reconstructs the pre-merge state.
+  * `mc` continues the merge after conflicts are resolved.
+  * `mC` performs a merge but does not commit.
+  * `mF` creates a merge commit even if the merge could be resolved as a fast-forward.
+  * `ms` performs a squash merge but does not commit.
+  * `mS` performs a merge and GPG-signs the resulting commit.
+  * `mv` verifies the GPG signature of the tip commit of the side branch being merged.
+  * `mt` runs the merge conflict resolution tools to resolve conflicts.
 
 ### Push
 
-  * `Yp` updates remote refs along with associated objects.
-  * `Ypf` forces a push safely (with "lease").
-  * `YpF` forces a push.
-  * `Ypa` pushes all branches.
-  * `YpA` pushes all branches and tags.
-  * `Ypt` pushes all tags.
-  * `Ypc` pushes the current branch and adds *origin* as an upstream reference for it.
-  * `Ypp` pulls and pushes the current branch from *origin* to *origin*.
+  * `p` updates remote refs along with associated objects.
+  * `pf` forces a push safely (with "lease").
+  * `pF` forces a push.
+  * `pa` pushes all branches.
+  * `pA` pushes all branches and tags.
+  * `pt` pushes all tags.
+  * `pc` pushes the current branch and adds *origin* as an upstream reference for it.
+  * `pp` pulls and pushes the current branch from *origin* to *origin*.
 
 ### Rebase
 
-  * `Yr` forward-ports local commits to the updated upstream head.
-  * `Yra` aborts the rebase, and checks out the original branch.
-  * `Yrc` continues the rebase after merge conflicts are resolved.
-  * `Yri` makes a list of commits to be rebased and opens the editor.
-  * `Yrs` skips the current patch.
-  * `YrS` rebases and YPG-signs the commits.
+  * `r` forward-ports local commits to the updated upstream head.
+  * `ra` aborts the rebase, and checks out the original branch.
+  * `rc` continues the rebase after merge conflicts are resolved.
+  * `ri` makes a list of commits to be rebased and opens the editor.
+  * `rs` skips the current patch.
+  * `rS` rebases and GPG-signs the commits.
 
 ### Remote
 
-  * `YR` manages tracked repositories.
-  * `YRl` lists remote names and their URLs.
-  * `YRa` adds a new remote.
-  * `YRx` removes a remote.
-  * `YRm` renames a remote.
-  * `YRu` fetches remotes updates.
-  * `YRp` prunes all stale remote-tracking branches.
-  * `YRs` shows information about a given remote.
-  * `YRS` changes URLs for a remote.
+  * `R` manages tracked repositories.
+  * `Rl` lists remote names and their URLs.
+  * `Ra` adds a new remote.
+  * `Rx` removes a remote.
+  * `Rm` renames a remote.
+  * `Ru` fetches remotes updates.
+  * `Rp` prunes all stale remote-tracking branches.
+  * `Rs` shows information about a given remote.
+  * `RS` changes URLs for a remote.
 
 ### Stash
 
-  * `Ys` stashes the changes of the dirty working directory.
-  * `Ysa` applies the changes recorded in a stash to the working directory.
-  * `Ysx` drops a stashed state.
-  * `YsX` drops all the stashed states.
-  * `Ysl` lists stashed states.
-  * `Ysd` displays changes between the stash and its original parent.
-  * `Ysp` removes and applies a single stashed state from the stash list.
-  * `Ysr` recovers a given stashed state.
-  * `Yss` stashes the working directory changes, including untracked files.
-  * `YsS` stashes the working directory changes interactively.
-  * `Ysw` stashes the working directory changes retaining the index.
-  * `Ysi` stashes changes in the index retaining the working directory.
-  * `Ysu` undoes (reverses) applied changes.
+  * `s` stashes the changes of the dirty working directory.
+  * `sa` applies the changes recorded in a stash to the working directory.
+  * `sx` drops a stashed state.
+  * `sX` drops all the stashed states.
+  * `sl` lists stashed states.
+  * `sd` displays changes between the stash and its original parent.
+  * `sp` removes and applies a single stashed state from the stash list.
+  * `sr` recovers a given stashed state.
+  * `ss` stashes the working directory changes, including untracked files.
+  * `sS` stashes the working directory changes interactively.
+  * `sw` stashes the working directory changes retaining the index.
+  * `si` stashes changes in the index retaining the working directory.
+  * `su` undoes (reverses) applied changes.
 
 ### Submodule
 
-  * `YS` initializes, updates, or inspects submodules.
-  * `YSa` adds a given repository as a submodule.
-  * `YSf` evaluates a shell command in each of checked out submodules.
-  * `YSi` initializes submodules.
-  * `YSI` initializes and clones submodules recursively.
-  * `YSl` lists the commits of all submodules.
-  * `YSm` moves a submodule.
-  * `YSs` synchronizes remote URL of submodules to the value specified in `~/.gitmodules`.
-  * `YSu` fetches and merges the latest remote changes for all submodules.
-  * `YSx` removes a submodule.
+  * `S` initializes, updates, or inspects submodules.
+  * `Sa` adds a given repository as a submodule.
+  * `Sf` evaluates a shell command in each of checked out submodules.
+  * `Si` initializes submodules.
+  * `SI` initializes and clones submodules recursively.
+  * `Sl` lists the commits of all submodules.
+  * `Sm` moves a submodule.
+  * `Ss` synchronizes remote URL of submodules to the value specified in `.gitmodules`.
+  * `Su` fetches and merges the latest remote changes for all submodules.
+  * `Sx` removes a submodule.
 
 ### Tag
 
-  * `Yt` creates, lists, deletes or verifies a tag object signed with YPG.
-  * `Ytl` lists tags in reverse chronological order (by commit date).
-  * `Yts` creates a YPG-signed tag.
-  * `Ytv` verifies the YPG signature of tags.
-  * `Ytx` deletes tags with given names.
+  * `t` creates, lists, deletes or verifies a tag object signed with GPG.
+  * `tl` lists tags in reverse chronological order (by commit date).
+  * `ts` creates a GPG-signed tag.
+  * `tv` verifies the GPG signature of tags.
+  * `tx` deletes tags with given names.
 
 ### Main working tree
 
-  * `Yws` displays the working tree status in short format.
-  * `YwS` displays the working tree status.
-  * `Ywd` displays changes between the working tree and the index (diff).
-  * `YwD` displays changes between the working tree and the index (word diff).
-  * `Ywr` resets the current *HEAD* to the specified state, preserving the index and working tree.
-  * `YwR` resets the current *HEAD*, index and working tree to the specified state.
-  * `Ywc` cleans untracked files from the working tree (dry-run).
-  * `YwC` cleans untracked files from the working tree.
-  * `Ywm` moves or renames files.
-  * `YwM` moves or renames files (forced).
-  * `Ywx` removes files from the working tree and from the index (recursively).
-  * `YwX` removes files from the working tree and from the index (recursively and forced).
+  * `ws` displays the working tree status in short format.
+  * `wS` displays the working tree status.
+  * `wd` displays changes between the working tree and the index (diff).
+  * `wD` displays changes between the working tree and the index (word diff).
+  * `wr` resets the current *HEAD* to the specified state, preserving the index and working tree.
+  * `wR` resets the current *HEAD*, index and working tree to the specified state.
+  * `wc` cleans untracked files from the working tree (dry-run).
+  * `wC` cleans untracked files from the working tree.
+  * `wm` moves or renames files.
+  * `wM` moves or renames files (forced).
+  * `wx` removes files from the working tree and from the index (recursively).
+  * `wX` removes files from the working tree and from the index (recursively and forced).
 
 ### Working trees
 
-  * `YW` manages multiple working trees.
-  * `YWa` creates path with a new working tree.
-  * `YWl` lists details of all working trees.
-  * `YWm` moves a working tree to a new location.
-  * `YWp` prunes working tree information.
-  * `YWx` removes a working tree.
-  * `YWX` removes a working tree (forced).
+  * `W` manages multiple working trees.
+  * `Wa` creates path with a new working tree.
+  * `Wl` lists details of all working trees.
+  * `Wm` moves a working tree to a new location.
+  * `Wp` prunes working tree information.
+  * `Wx` removes a working tree.
+  * `WX` removes a working tree (forced).
 
 ### Switch
 
-  * `Yy` switches branches.
-  * `Yyc` creates a new branch with given name before switching to it.
-  * `Yyd` switches to a commit for inspection and discardable experiments.
+  * `y` switches branches.
+  * `yc` creates a new branch with given name before switching to it.
+  * `yd` switches to a commit for inspection and discardable experiments.
 
 ### Misc
 
-  * `Y..` changes the current directory to the top level of the working tree.
-  * `Y?` looks up the aliases defined here with given regular expressions.
+  * `..` changes the current directory to the top level of the working tree.
+  * `?` looks up the aliases defined here with given regular expressions.
 
 Settings
 --------
 
-By default, all aliases are defined with an upper case `Y` prefix, as you can
-see above. You can use the following zstyle if you wish to customize the prefix
-used to generate all aliases:
+This module can be loaded more than once, once for each command you want
+aliases for. Use `--name` to give each instance of the module a distinct
+name in your `~/.zimrc`, since that name also picks the defaults below:
 
-    zstyle ':zim:yadm' aliases-prefix 'y'
+    zmodule your-org/vcs --name git
+    zmodule your-org/vcs --name yadm
 
-Add the zstyle to the beginning of your `~/.zshrc`, before the modules are
+By default, each instance runs its own name as the command, and generates
+aliases prefixed with the upper case first letter of that command (`G` for
+`git`, `Y` for `yadm`). You can override either default with the following
+zstyles, scoped to the instance name given to `--name` above:
+
+    zstyle ':zim:vcs:git' cmd 'git'
+    zstyle ':zim:vcs:git' aliases-prefix 'G'
+
+    zstyle ':zim:vcs:yadm' cmd 'yadm'
+    zstyle ':zim:vcs:yadm' aliases-prefix 'Y'
+
+Add the zstyles to the beginning of your `~/.zshrc`, before the modules are
 initialized with `source ${ZIM_HOME}/init.zsh`.
 
-Be careful if changing the prefix to lower case `y`, as the generated aliases
-can shadow [many](https://yadmhub.com/zimfw/yadm/issues/2) commands.
+Be careful if changing a prefix to a lower case letter, as the generated
+aliases can shadow many commands.
 
 Functions
 ---------
 
-  * `yadm-alias-lookup` lists the aliases defined here searching at a given path, by given regular expressions.
-  * `yadm-branch-current` displays the current branch.
-  * `yadm-branch-delete-interactive` asks for confirmation to also delete the upstream remote branch(es).
-  * `yadm-branch-remote-tracking` lists all local branches with none or given remote-tracking status
-     (gone, ahead, behind, or ahead behind).
-  * `yadm-dir` displays the path to the Yit directory.
-  * `yadm-ignore-add` adds any arguments to ~/.config/yadm/ignore (NOTE: You need to configure yadm to use this as an ignore file)
-  * `yadm-root` displays the path to the working tree root.
-  * `yadm-stash-clear-interactive` asks for confirmation before clearing the stash.
-  * `yadm-stash-recover` recovers given dropped stashed states.
-  * `yadm-submodule-move` moves a submodule.
-  * `yadm-submodule-remove` removes a submodule.
+Most of these functions take the underlying command (`git`, `yadm`, ...) as
+their first argument, so they work the same regardless of which module
+instance's aliases call them.
+
+  * `vcs-alias-lookup <module home> <alias prefix> [pattern...]` lists the
+    aliases defined here, searching by given regular expressions.
+  * `vcs-branch-current <cmd>` displays the current branch.
+  * `vcs-branch-delete-interactive <cmd>` asks for confirmation to also
+    delete the upstream remote branch(es).
+  * `vcs-branch-remote-tracking <cmd>` lists all local branches with none or
+    given remote-tracking status (gone, ahead, behind, or ahead behind).
+  * `vcs-dir <cmd>` displays the path to the `.git` directory.
+  * `vcs-ignore-add <cmd> <ignore-file> <path...>` adds paths to
+    `<ignore-file>` (relative to the working tree root, unless given as an
+    absolute or `~`-prefixed path). E.g. for yadm, use
+    `~/.config/yadm/ignore` (you need to configure yadm to use this as an
+    ignore file).
+  * `vcs-root <cmd>` displays the path to the working tree root.
+  * `vcs-stash-clear-interactive <cmd>` asks for confirmation before
+    clearing the stash.
+  * `vcs-stash-recover <cmd>` recovers given dropped stashed states.
+  * `vcs-submodule-move <cmd>` moves a submodule.
+  * `vcs-submodule-remove <cmd>` removes a submodule.

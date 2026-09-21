@@ -1,0 +1,9 @@
+#compdef vcs-branch-delete-interactive
+
+local service=${words[2]}
+words=(${service} branch ${words[3,-1]})
+if (( ${+functions[_${service}]} )); then
+  _${service}
+else
+  _git
+fi

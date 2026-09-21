@@ -1,0 +1,21 @@
+# vim:et sts=2 sw=2 ft=zsh
+builtin emulate -L zsh
+
+if (( # < 2 )); then
+  print -u2 "usage: ${0} <cmd> <ignore-file> <path...>"
+  return 2
+fi
+
+local vcs_cmd=${1} vfile=${2}
+shift 2
+
+local vcs_root vpath
+vcs_root=$(vcs-root ${vcs_cmd}) || return 1
+if [[ ${vfile} == /* || ${vfile} == '~'* ]]; then
+  vpath=${~vfile}
+else
+  vpath=${vcs_root}/${vfile}
+fi
+
+# we are in a working tree tracked by ${vcs_cmd}. add parameters to the ignore file
+for file (${@}) print ${file} >>! ${vpath}

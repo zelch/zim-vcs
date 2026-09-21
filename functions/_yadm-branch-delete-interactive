@@ -1,3 +1,0 @@
-#compdef yadm-branch-delete-interactive
-
-words[1]=(yadm branch); (( CURRENT++ )); service=yadm; _yadm

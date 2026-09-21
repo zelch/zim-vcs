@@ -1,0 +1,6 @@
+# vim:et sts=2 sw=2 ft=zsh
+builtin emulate -L zsh
+
+local vcs_cmd=${1:?} vcs_dir
+vcs_dir=$(command ${vcs_cmd} rev-parse --git-dir) || return 1
+print ${vcs_dir:A}

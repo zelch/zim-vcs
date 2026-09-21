@@ -1,9 +1,11 @@
 # vim:et sts=2 sw=2 ft=zsh
 builtin emulate -L zsh -o PIPE_FAIL
 
+local vcs_cmd=${1:?}
+
 local -i stashed
-stashed=$(command yadm rev-list --walk-reflogs --count refs/stash -- 2>/dev/null) || return 1
+stashed=$(command ${vcs_cmd} rev-list --walk-reflogs --count refs/stash -- 2>/dev/null) || return 1
 if (( stashed )) && read -q "?Clear ${stashed} stashed state(s) [y/N]? "; then
   print
-  command yadm stash clear
+  command ${vcs_cmd} stash clear
 fi

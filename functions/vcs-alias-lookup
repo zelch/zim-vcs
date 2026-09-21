@@ -32,7 +32,9 @@ while IFS= read -r vline; do
   if [[ ${vline} =~ '^ *\* `([^`]*)` (.*)$' ]]; then
     valias=${vprefix}${match[1]}
     vline=${valias}$'\t'${aliases[${valias}]}$'\t'${match[2]}
-    if [[ -z ${vpattern} || ${vline} =~ ${vpattern} ]]; then
+    # a pattern matching the section name (e.g. 'branch') pulls in the
+    # whole section, not just the lines that happen to match it too
+    if [[ -z ${vpattern} || ${vline} =~ ${vpattern} || ${(L)vsection} =~ ${(L)vpattern} ]]; then
       vrows+=(${vline})
       vsections+=(${vsection})
     fi

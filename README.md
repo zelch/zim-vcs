@@ -251,6 +251,8 @@ it's `Yb`.
 
   * `..` changes the current directory to the top level of the working tree.
   * `?` looks up the aliases defined here with given regular expressions.
+    A pattern that matches a section name (e.g. `branch`, case-insensitive)
+    prints that whole section.
 
 Settings
 --------

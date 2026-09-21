@@ -165,6 +165,16 @@ test_alias_lookup_grouping() {
     assert_true "full listing includes the Working trees: section" $(( ${vout[(I)Working trees:]} > 0 ))
     assert_true "full listing does not leak Functions section docs" $(( ${vout[(I)vcs-alias-lookup <module*]} == 0 ))
 
+    # a pattern matching a section name pulls in the whole section, even
+    # entries whose own alias/command/description text doesn't match it
+    vout=$(vcs-alias-lookup ${vmodule_home} G data)
+    assert_true "'G? data' includes Gd, whose text doesn't mention data" \
+      $(( ${vout[(I)Gd *]} > 0 ))
+    assert_true "'G? data' includes GdI, whose text doesn't mention data" \
+      $(( ${vout[(I)GdI *]} > 0 ))
+    assert_true "'G? data' matches the section name case-insensitively" \
+      $(( ${$(vcs-alias-lookup ${vmodule_home} G Data)[(I)Gd *]} > 0 ))
+
     # exactly one blank line before each section after the first, and none
     # before the first section, whether or not a pattern is given
     local -r v1blank=$'\n\n' v2blank=$'\n\n\n'

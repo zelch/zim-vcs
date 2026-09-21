@@ -1,13 +1,14 @@
-vcs
-===
+zim-vcs
+=======
 
 Provides handy Git-family aliases and functions for [zimfw](https://zimfw.org),
 for any git-compatible command such as `git` itself or [yadm](https://yadm.io).
 
 This is a fork of [zimfw/git](https://github.com/zimfw/git), generalized so
-the underlying command and alias prefix are both configurable. Load the
-module more than once to get aliases for more than one command at the same
-time (e.g. both `git` and `yadm`). See Settings below.
+the underlying command and alias prefix are both configurable. Works with no
+configuration, defaulting to plain `git`. Load the module again with its own
+`--name` and a `cmd` zstyle to also get aliases for another command (e.g.
+`yadm`) at the same time. See Settings below.
 
 Many thanks to [Sorin Ionescu](https://github.com/sorin-ionescu) for the
 excellent original aliases.
@@ -254,20 +255,28 @@ it's `Yb`.
 Settings
 --------
 
-This module can be loaded more than once, once for each command you want
-aliases for. Use `--name` to give each instance of the module a distinct
-name in your `~/.zimrc`, since that name also picks the defaults below:
+By default, with no configuration, this module runs `git` and generates
+aliases prefixed with `G` (the upper case first letter of `git`):
 
-    zmodule your-org/vcs --name git
-    zmodule your-org/vcs --name yadm
+    zmodule your-org/zim-vcs
 
-By default, each instance runs its own name as the command, and generates
-aliases prefixed with the upper case first letter of that command (`G` for
-`git`, `Y` for `yadm`). You can override either default with the following
-zstyles, scoped to the instance name given to `--name` above:
+This module can also be loaded more than once, to also get aliases for
+another command (e.g. `yadm`) at the same time. Give each extra instance a
+distinct `--name` in your `~/.zimrc`, and set its `cmd` zstyle, scoped to
+that instance name, to the command it should run:
 
-    zstyle ':zim:vcs:git' cmd 'git'
-    zstyle ':zim:vcs:git' aliases-prefix 'G'
+    zmodule your-org/zim-vcs --name yadm
+
+    zstyle ':zim:vcs:yadm' cmd 'yadm'
+
+The alias prefix for that instance defaults to the upper case first letter
+of its command (`Y` for `yadm` above). You can override either default,
+including for the `git` instance, with the following zstyles, scoped to the
+instance name given to `--name` (or the module name, if `--name` wasn't
+given):
+
+    zstyle ':zim:vcs:zim-vcs' cmd 'git'
+    zstyle ':zim:vcs:zim-vcs' aliases-prefix 'G'
 
     zstyle ':zim:vcs:yadm' cmd 'yadm'
     zstyle ':zim:vcs:yadm' aliases-prefix 'Y'

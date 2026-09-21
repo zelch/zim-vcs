@@ -10,8 +10,9 @@ local -r vmodule_home=${1} vprefix=${2}
 shift 2
 local -r vpattern=${(j:.*:)@}
 
-local vline valias vsection vlastsection=
-local -i vinsection=0 vfirst=1
+local vline valias vsection
+local -a vrows vsections
+local -i vinsection=0
 # read one-line documentations from the Aliases section of README.md, grouped
 # under the same section headers used there (and mirrored by the comments
 # above each block of aliases in init.zsh)
@@ -32,13 +33,24 @@ while IFS= read -r vline; do
     valias=${vprefix}${match[1]}
     vline=${valias}$'\t'${aliases[${valias}]}$'\t'${match[2]}
     if [[ -z ${vpattern} || ${vline} =~ ${vpattern} ]]; then
-      if [[ ${vsection} != ${vlastsection} ]]; then
-        (( vfirst )) || print -R ''
-        print -R "${vsection}:"
-        vlastsection=${vsection}
-        vfirst=0
-      fi
-      print -R ${vline}
+      vrows+=(${vline})
+      vsections+=(${vsection})
     fi
   fi
-done < ${vmodule_home}/README.md | command column -s $'\t' -t
+done < ${vmodule_home}/README.md
+
+# align columns first; column -t drops blank lines, so interleave the
+# section headers and blank line separators afterwards, straight to stdout
+local -a vformatted
+vformatted=(${(f)"$(command column -s $'\t' -t <<<${(F)vrows})"})
+
+local vlastsection=
+local -i vi
+for (( vi = 1; vi <= ${#vrows}; vi++ )); do
+  if [[ ${vsections[vi]} != ${vlastsection} ]]; then
+    (( vi == 1 )) || print -R ''
+    print -R "${vsections[vi]}:"
+    vlastsection=${vsections[vi]}
+  fi
+  print -R ${vformatted[vi]}
+done

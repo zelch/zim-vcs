@@ -37,6 +37,28 @@ assert_true() {
   fi
 }
 
+# pattern matching (e.g. against multi-line output) belongs in [[ ]], not
+# (( )): comparing strings/patterns arithmetically is unreliable in zsh
+assert_match() {
+  local -r vdesc=$1 vhaystack=$2 vpattern=$3
+  if [[ ${vhaystack} == ${~vpattern} ]]; then
+    (( vpass++ ))
+  else
+    (( vfail++ ))
+    print -u2 "FAIL: ${vdesc}"
+  fi
+}
+
+assert_no_match() {
+  local -r vdesc=$1 vhaystack=$2 vpattern=$3
+  if [[ ${vhaystack} != ${~vpattern} ]]; then
+    (( vpass++ ))
+  else
+    (( vfail++ ))
+    print -u2 "FAIL: ${vdesc}"
+  fi
+}
+
 #
 # Syntax check every function and init.zsh
 #
@@ -142,6 +164,25 @@ test_alias_lookup_grouping() {
     assert_true "full listing includes the Command: section" $(( ${vout[(I)Command:]} > 0 ))
     assert_true "full listing includes the Working trees: section" $(( ${vout[(I)Working trees:]} > 0 ))
     assert_true "full listing does not leak Functions section docs" $(( ${vout[(I)vcs-alias-lookup <module*]} == 0 ))
+
+    # exactly one blank line before each section after the first, and none
+    # before the first section, whether or not a pattern is given
+    local -r v1blank=$'\n\n' v2blank=$'\n\n\n'
+    vout=$(vcs-alias-lookup ${vmodule_home} G log)
+    assert_no_match "'G? log' has no blank line before the first section" \
+      "${vout}" $'\n'"*"
+    assert_match "'G? log' has a blank line before Log:" \
+      "${vout}" "*${v1blank}Log:*"
+    assert_match "'G? log' has a blank line before Tag:" \
+      "${vout}" "*${v1blank}Tag:*"
+    assert_no_match "'G? log' has no double blank line before Log:" \
+      "${vout}" "*${v2blank}Log:*"
+
+    vout=$(vcs-alias-lookup ${vmodule_home} G)
+    assert_no_match 'full listing has no blank line before the first section' \
+      "${vout}" $'\n'"*"
+    assert_match 'full listing has a blank line before Branch:' \
+      "${vout}" "*${v1blank}Branch:*"
   }
 }
 

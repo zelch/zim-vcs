@@ -14,13 +14,20 @@ local vinstance=${vmodule_home:t}
 # Aliases
 #
 
-# The command to run defaults to 'git', so the module works out of the box
-# with no configuration. To also get aliases for another command (e.g.
-# yadm), load the module again with a distinct --name and set its cmd
-# zstyle, scoped to that instance name, to get a second set of aliases.
+# The command to run defaults to this instance's name, so loading the
+# module again with a distinct --name (e.g. --name yadm) gets you a second
+# set of aliases with no extra configuration. The unnamed, default instance
+# is named after this module itself, which isn't a runnable command, so
+# that one defaults to 'git' instead.
 # Override with: zstyle ':zim:vcs:<instance-name>' cmd '<command>'
 local vcmd
-zstyle -s ":zim:vcs:${vinstance}" cmd 'vcmd' || vcmd=git
+if ! zstyle -s ":zim:vcs:${vinstance}" cmd 'vcmd'; then
+  if [[ ${vinstance} == 'zim-vcs' ]]; then
+    vcmd=git
+  else
+    vcmd=${vinstance}
+  fi
+fi
 
 # The alias prefix defaults to the upper case first letter of the command.
 # Override with: zstyle ':zim:vcs:<instance-name>' aliases-prefix '<prefix>'

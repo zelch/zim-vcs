@@ -64,17 +64,18 @@ test_dual_instance() {
     autoload -Uz ${vgit_home}/functions/*(:t) ${vyadm_home}/functions/*(:t)
     fpath=(${vgit_home}/functions ${vyadm_home}/functions ${fpath})
 
-    # the 'git' instance gets no configuration: it must default to git/G
+    # the default instance, named after the module itself, gets no
+    # configuration: it must default to git/G
     source ${vgit_home}/init.zsh
 
-    # the 'yadm' instance must be told to use yadm explicitly
-    zstyle ':zim:vcs:yadm' cmd 'yadm'
+    # an instance named 'yadm' needs no configuration either: it must
+    # default to running yadm/Y, matching its own --name
     source ${vyadm_home}/init.zsh
 
     assert_eq 'default instance runs git' 'git branch' "${aliases[Gb]}"
     assert_eq 'default instance prefix is G' 'git' "${aliases[G]}"
-    assert_eq 'configured yadm instance runs yadm' 'yadm branch' "${aliases[Yb]}"
-    assert_eq 'configured yadm instance prefix is Y' 'yadm' "${aliases[Y]}"
+    assert_eq 'yadm-named instance runs yadm with no zstyle configured' 'yadm branch' "${aliases[Yb]}"
+    assert_eq 'yadm-named instance prefix is Y' 'yadm' "${aliases[Y]}"
     assert_eq '.. bakes in git for the default instance' \
       'cd "$(vcs-root git || print .)"' "${aliases[G..]}"
     assert_eq '.. bakes in yadm for the yadm instance' \
@@ -84,6 +85,31 @@ test_dual_instance() {
     vgcount=${#${(M)${(k)aliases}:#G*}}
     vycount=${#${(M)${(k)aliases}:#Y*}}
     assert_true 'both instances defined the same number of aliases' $(( vgcount == vycount && vgcount > 0 ))
+  }
+}
+
+#
+# An instance whose --name doesn't match its intended command (e.g. a name
+# chosen for some other reason) can still be pointed at that command
+# explicitly via the cmd zstyle.
+#
+
+test_cmd_override() {
+  local -r vwork_home=${vscratch}/instances/work
+  command mkdir -p ${vwork_home}
+  command cp -r ${vmodule_home}/functions ${vmodule_home}/init.zsh ${vmodule_home}/README.md ${vwork_home}/
+
+  () {
+    builtin emulate -L zsh
+    autoload -Uz ${vwork_home}/functions/*(:t)
+    fpath=(${vwork_home}/functions ${fpath})
+
+    zstyle ':zim:vcs:work' cmd 'yadm'
+    zstyle ':zim:vcs:work' aliases-prefix 'W'
+    source ${vwork_home}/init.zsh
+
+    assert_eq 'cmd zstyle overrides the instance name' 'yadm branch' "${aliases[Wb]}"
+    assert_eq 'aliases-prefix zstyle overrides the derived prefix' 'yadm' "${aliases[W]}"
   }
 }
 
@@ -148,6 +174,7 @@ test_repo_functions() {
 
 test_syntax
 test_dual_instance
+test_cmd_override
 test_alias_lookup_grouping
 test_repo_functions
 

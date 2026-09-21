@@ -262,18 +262,18 @@ aliases prefixed with `G` (the upper case first letter of `git`):
 
 This module can also be loaded more than once, to also get aliases for
 another command (e.g. `yadm`) at the same time. Give each extra instance a
-distinct `--name` in your `~/.zimrc`, and set its `cmd` zstyle, scoped to
-that instance name, to the command it should run:
+distinct `--name` in your `~/.zimrc` matching the command it should run, and
+that's all the configuration it needs:
 
     zmodule your-org/zim-vcs --name yadm
 
-    zstyle ':zim:vcs:yadm' cmd 'yadm'
-
-The alias prefix for that instance defaults to the upper case first letter
-of its command (`Y` for `yadm` above). You can override either default,
-including for the `git` instance, with the following zstyles, scoped to the
-instance name given to `--name` (or the module name, if `--name` wasn't
-given):
+Behind the scenes, the command defaults to the instance's own `--name`. The
+unnamed, default instance is named after the module itself (`zim-vcs`),
+which isn't a runnable command, so that one defaults to `git` instead. The
+alias prefix in turn defaults to the upper case first letter of the
+command (`G` for `git`, `Y` for `yadm`). You can override either default
+with the following zstyles, scoped to the instance name given to `--name`
+(or the module name, if `--name` wasn't given):
 
     zstyle ':zim:vcs:zim-vcs' cmd 'git'
     zstyle ':zim:vcs:zim-vcs' aliases-prefix 'G'
